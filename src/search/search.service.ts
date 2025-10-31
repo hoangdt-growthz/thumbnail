@@ -188,7 +188,15 @@ export class SearchService {
     const responses = await Promise.all(
       queries.map(async (query) => {
         const match = await this.findBestMatch(query, candidates);
-        return match ?? { query };
+        return (
+          match ?? {
+            query,
+            title: '',
+            system: '',
+            similarity: 0,
+            url: '',
+          }
+        );
       }),
     );
 
