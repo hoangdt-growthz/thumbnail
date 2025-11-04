@@ -1,6 +1,7 @@
+import { OnApplicationBootstrap } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { ImageEntity } from './image.entity';
-export declare class CrawlerService {
+export declare class CrawlerService implements OnApplicationBootstrap {
     private readonly imageRepo;
     private readonly logger;
     private readonly baseUrl;
@@ -9,4 +10,5 @@ export declare class CrawlerService {
     private getSubfolders;
     private crawlBoxarts;
     private saveImage;
+    onApplicationBootstrap(): Promise<void>;
 }

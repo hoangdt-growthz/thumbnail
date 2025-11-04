@@ -64,8 +64,18 @@ let CrawlerService = CrawlerService_1 = class CrawlerService {
         this.imageRepo = imageRepo;
     }
     async crawlAll() {
+        const allowedFolders = [
+            'Nintendo%20-%20Game%20Boy%20Advance/',
+            'Nintendo%20-%20Game%20Boy%20Color/',
+            'Nintendo%20-%20Nintendo%20Entertainment%20System/',
+            'Nintendo%20-%20Super%20Nintendo%20Entertainment%20System/',
+            'Nintendo%20-%20Nintendo%2064/',
+            'Sega%20-%20Mega%20Drive%20-%20Genesis/',
+            'Nintendo%20-%20Nintendo%20DS/',
+        ];
         const folders = await this.getSubfolders(this.baseUrl);
-        for (const folder of folders) {
+        const filteredFolders = folders.filter((folder) => allowedFolders.some((allowed) => folder.includes(allowed)));
+        for (const folder of filteredFolders) {
             const namedBoxarts = `${this.baseUrl}${folder}Named_Boxarts/`;
             await this.crawlBoxarts(namedBoxarts, folder);
         }
@@ -101,6 +111,17 @@ let CrawlerService = CrawlerService_1 = class CrawlerService {
         const exists = await this.imageRepo.findOne({ where: { url } });
         if (!exists) {
             await this.imageRepo.save({ folder, filename, url });
+        }
+    }
+    async onApplicationBootstrap() {
+        this.logger.log('🚀 Starting initial crawl');
+        try {
+            await this.crawlAll();
+            this.logger.log('✅ Initial crawl completed');
+        }
+        catch (err) {
+            const error = err instanceof Error ? err : new Error(String(err));
+            this.logger.error(`❌ Initial crawl failed: ${error.message}`);
         }
     }
 };
